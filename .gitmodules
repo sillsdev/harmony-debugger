@@ -1,0 +1,4 @@
+[submodule "lexbox"]
+	path = lexbox
+	url = https://github.com/sillsdev/languageforge-lexbox.git
+	branch = develop
