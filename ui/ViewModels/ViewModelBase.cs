@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace HarmonyDebuggerUi.ViewModels;
+namespace HarmonyDebugger.UI.ViewModels;
 
 public class ViewModelBase : ObservableObject
 {

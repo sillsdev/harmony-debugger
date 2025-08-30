@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace HarmonyDebuggerUi.Views;
+namespace HarmonyDebugger.UI.Views;
 
 public partial class MainWindow : Window
 {

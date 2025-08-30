@@ -1,9 +1,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using HarmonyDebuggerUi.ViewModels;
+using HarmonyDebugger.UI.ViewModels;
 
-namespace HarmonyDebuggerUi;
+namespace HarmonyDebugger.UI;
 
 public class ViewLocator : IDataTemplate
 {

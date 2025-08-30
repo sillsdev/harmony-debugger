@@ -1,20 +1,40 @@
-﻿using Avalonia;
+using Avalonia;
 using System;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace HarmonyDebuggerUi;
+namespace HarmonyDebugger;
 
 sealed class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
     [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+        var dbArg = "D:/code/harmony-debugger/test-data/sena-3.sqlite";
+        // args.FirstOrDefault(a => a.StartsWith("--db="))?.Split('=')[1];
+        if (string.IsNullOrWhiteSpace(dbArg))
+        {
+            Console.Error.WriteLine("Usage: Harmony.Debugger --db=Path/To/db.sqlite");
+            Environment.Exit(1);
+        }
 
-    // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+        try
+        {
+            var services = CrdtLoader.LoadCrdt(dbArg);
+            BuildAvaloniaApp(services).StartWithClassicDesktopLifetime(args);
+        }
+        catch (Exception ex)
+        {
+            throw;
+            Console.Error.WriteLine($"Inspection failed: {ex.Message}");
+            Environment.Exit(2);
+            return;
+        }
+
+    }
+
+    public static AppBuilder BuildAvaloniaApp(ServiceCollection? services = null)
+        => AppBuilder.Configure(() => new App(services))
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace();
