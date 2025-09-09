@@ -1,5 +1,6 @@
 using Avalonia;
 using System;
+using System.IO;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +11,7 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        var dbArg = "D:/code/harmony-debugger/test-data/sena-3.sqlite";
+        var dbArg = $"{FindParentTestDataDir()}/sena-3.sqlite";
         // args.FirstOrDefault(a => a.StartsWith("--db="))?.Split('=')[1];
         if (string.IsNullOrWhiteSpace(dbArg))
         {
@@ -30,7 +31,21 @@ sealed class Program
             Environment.Exit(2);
             return;
         }
+    }
 
+    private static string? FindParentTestDataDir()
+    {
+        var current = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (current != null)
+        {
+            var candidate = Path.Combine(current.FullName, "test-data");
+            if (Directory.Exists(candidate))
+                return candidate;
+
+            current = current.Parent;
+        }
+
+        return null;
     }
 
     public static AppBuilder BuildAvaloniaApp(ServiceCollection? services = null)
