@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using SIL.Harmony;
+﻿using SIL.Harmony;
 using SIL.Harmony.Db;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,49 +12,38 @@ using Avalonia.Controls.Models.TreeDataGrid;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
 using Avalonia.Controls;
+using HarmonyDebugger.UI.Views;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace HarmonyDebugger.UI.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    public MainWindowViewModel(IOptions<CrdtConfig> crdtConfig, IServiceProvider serviceProvider, DbPathContext dbPathContext)
+    public MainWindowViewModel(IServiceProvider serviceProvider, DbPathContext dbPathContext, HarmonyDebugger.UI.Services.IHarmonyConfigService harmonyConfig)
     {
-        _crdtConfig = crdtConfig;
         _rootProvider = serviceProvider;
         _dbPathContext = dbPathContext;
-        ChangeTypeNames = _crdtConfig.Value.ChangeTypes.Select(t => PrettyTypeName(t)).OrderBy(n => n).ToList();
-        ObjectTypeNames = _crdtConfig.Value.ObjectTypes.Select(t => PrettyTypeName(t)).OrderBy(n => n).ToList();
+        _harmonyConfig = harmonyConfig;
         Commits = new ReadOnlyObservableCollection<Commit>(_commits);
-        // initial load
-        LoadCommits();
+        // We always have CRDT config (types) at startup, but we defer any DB access
+        // until the user explicitly selects a database.
+        CombinedTypesStatus = _harmonyConfig.ConfigSummary;
+
+#if DEBUG
+        OpenSena3();
+#endif
     }
 
-    private readonly IOptions<CrdtConfig> _crdtConfig;
     private readonly IServiceProvider _rootProvider;
     private readonly DbPathContext _dbPathContext;
-    private string? _lastConnectionString;
+    private readonly HarmonyDebugger.UI.Services.IHarmonyConfigService _harmonyConfig;
 
 
-    public static string PrettyTypeName(Type t)
-    {
-        if (!t.IsGenericType) return t.Name;
-        var genericName = t.Name;
-        var tickIndex = genericName.IndexOf('`');
-        if (tickIndex > 0)
-            genericName = genericName[..tickIndex];
-        var argNames = t.GetGenericArguments().Select(a => a.Name);
-        return $"{genericName}<{string.Join(',', argNames)}>";
-    }
-
-    public IReadOnlyList<string> ChangeTypeNames { get; }
-
-    public IReadOnlyList<string> ObjectTypeNames { get; }
-
-    public int ChangeTypeCount => ChangeTypeNames.Count;
-    public int ObjectTypeCount => ObjectTypeNames.Count;
+    // PrettyTypeName logic moved to Services.TypeNameFormatter.
     public int CommitCount => _commits.Count;
 
-    private string _databaseName = "(db)";
+    private string _databaseName = "(no database)";
     public string DatabaseName
     {
         get => _databaseName;
@@ -67,16 +55,33 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public HierarchicalTreeDataGridSource<ICommitTreeItem>? CommitTree { get; private set; }
 
+    private string _combinedTypesStatus = string.Empty;
+    public string CombinedTypesStatus
+    {
+        get => _combinedTypesStatus;
+        private set => SetProperty(ref _combinedTypesStatus, value);
+    }
+
+    private void TryLoadCommitsSafe()
+    {
+        try
+        {
+            LoadCommits();
+        }
+        catch
+        {
+            // Suppress errors if DB not yet configured.
+        }
+    }
+
     private void LoadCommits()
     {
-        // Create a fresh scope so the scoped AddDbContextFactory is rebuilt with current DbPath
         using var scope = _rootProvider.CreateScope();
         var factory = scope.ServiceProvider.GetRequiredService<ICrdtDbContextFactory>();
         using var ctx = factory.CreateDbContext();
         var cs = ctx.Database.GetConnectionString();
         if (!string.IsNullOrEmpty(cs))
         {
-            _lastConnectionString = cs;
             DatabaseName = GetDatabaseNameFromConnectionString(cs);
         }
         // Eager load ChangeEntities so the UI binding {Binding ChangeEntities.Count} shows the real value.
@@ -98,15 +103,81 @@ public partial class MainWindowViewModel : ViewModelBase
 
         CommitTree = CommitTreeBuilder.Build(roots);
         OnPropertyChanged(nameof(CommitTree));
+
+        // Update status bar summary
+        CombinedTypesStatus = _harmonyConfig.ConfigSummary;
+    }
+
+    private static string? FindParentTestDataDir()
+    {
+        var current = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (current != null)
+        {
+            var candidate = Path.Combine(current.FullName, "test-data");
+            if (Directory.Exists(candidate))
+                return candidate;
+
+            current = current.Parent;
+        }
+
+        return null;
     }
 
     [RelayCommand]
-    private void ReloadDb()
+    private void OpenSena3()
     {
-        // Example hard-coded alternate path; in a real app this would be user-selected
-        _dbPathContext.DbPath = "D:/code/harmony-debugger/test-data/sena-3.sqlite";
-        LoadCommits();
+        var sena3Path = $"{FindParentTestDataDir()}/sena-3.sqlite";
+        _dbPathContext.DbPath = sena3Path;
+        TryLoadCommitsSafe();
     }
+
+    /// <summary>
+    /// Opens a file dialog so the user can pick a SQLite database and loads it.
+    /// </summary>
+    [RelayCommand]
+    public async System.Threading.Tasks.Task OpenDbFileAsync()
+    {
+        try
+        {
+            var lifetime = Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+            var owner = lifetime?.MainWindow;
+            if (owner is null) return;
+            if (owner.StorageProvider is null) return;
+            var results = await owner.StorageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions
+            {
+                AllowMultiple = false,
+                FileTypeFilter = new List<Avalonia.Platform.Storage.FilePickerFileType>
+                {
+                    new("SQLite Database") { Patterns = new List<string>{ "*.sqlite", "*.db" } },
+                    new("All Files") { Patterns = new List<string>{ "*.*" } }
+                }
+            });
+            var file = results?.FirstOrDefault();
+            var path = file?.Path?.LocalPath;
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return;
+            SetDatabasePath(path);
+        }
+        catch { }
+    }
+
+    /// <summary>
+    /// Sets the database path and reloads commits. Can be called from drag-and-drop or picker.
+    /// </summary>
+    public void SetDatabasePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return;
+        try
+        {
+            _dbPathContext.DbPath = path;
+            TryLoadCommitsSafe();
+        }
+        catch { }
+    }
+
+    // Manual command wrapper for XAML binding (OpenDbFileAsyncCommand)
+    private System.Windows.Input.ICommand? _openDbFileAsyncCommand;
+    public System.Windows.Input.ICommand OpenDbFileAsyncCommand =>
+        _openDbFileAsyncCommand ??= new AsyncRelayCommand(OpenDbFileAsync);
 
     private static string GetDatabaseNameFromConnectionString(string cs)
     {
@@ -127,7 +198,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 raw = value; break;
             }
         }
-        if (string.IsNullOrWhiteSpace(raw)) return "(db)";
+    if (string.IsNullOrWhiteSpace(raw)) return "(no database)";
         try
         {
             var fileName = Path.GetFileName(raw);
@@ -194,7 +265,7 @@ public sealed class ChangeEntityTreeItem : ICommitTreeItem
     public bool HasChildren => false;
     public IReadOnlyList<ICommitTreeItem>? Children => null;
     public string Hash => "";
-    public string DisplayText => MainWindowViewModel.PrettyTypeName(Entity.Change.GetType());
+    public string DisplayText => HarmonyDebugger.UI.Services.TypeNameFormatter.PrettyTypeName(Entity.Change.GetType());
     public string DateTimeDisplay => string.Empty;
 }
 
@@ -227,9 +298,10 @@ partial class MainWindowViewModel
         if (commit.ChangeEntities.Count > 0)
             return commit.ChangeEntities; // already loaded
 
-        using var scope = _rootProvider.CreateScope();
-        var factory = scope.ServiceProvider.GetRequiredService<ICrdtDbContextFactory>();
-        using var ctx = factory.CreateDbContext();
+    using var scope = _rootProvider.CreateScope();
+    var factory = scope.ServiceProvider.GetService<ICrdtDbContextFactory>();
+    if (factory is null) return commit.ChangeEntities; // no DB yet
+    using var ctx = factory.CreateDbContext();
         var changes = ctx.Set<ChangeEntity<IChange>>()
             .Where(ce => ce.CommitId == commit.Id)
             .OrderBy(ce => ce.Index)
@@ -239,4 +311,33 @@ partial class MainWindowViewModel
         commit.ChangeEntities.AddRange(changes);
         return commit.ChangeEntities;
     }
+
+    [RelayCommand]
+    private void OpenTypesWindow()
+    {
+        try
+        {
+            if (_typesWindow != null)
+            {
+                if (_typesWindow.IsVisible)
+                {
+                    _typesWindow.Activate();
+                    return;
+                }
+                else
+                {
+                    _typesWindow = null;
+                }
+            }
+            var window = _rootProvider.GetService(typeof(TypesWindow)) as TypesWindow;
+            if (window is null) return;
+            _typesWindow = window;
+            _typesWindow.Closed += (_, _) => _typesWindow = null;
+            _typesWindow.Show();
+            _typesWindow.Activate();
+        }
+        catch { _typesWindow = null; }
+    }
+
+    private TypesWindow? _typesWindow;
 }

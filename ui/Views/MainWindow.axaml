@@ -7,7 +7,7 @@
         x:Class="HarmonyDebugger.UI.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="HarmonyDebugger.UI">
+    Title="HarmonyDebugger.UI">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -15,22 +15,26 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="*" ColumnDefinitions="*,*" Margin="10" ColumnSpacing="20">
-        <!-- Left column: type lists -->
-        <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto,*" VerticalAlignment="Stretch">
-            <TextBlock Grid.Row="0" Text="{Binding ChangeTypeCount, StringFormat=Change Types ({0})}" FontWeight="Bold" Margin="0 0 0 5"/>
-            <ListBox Grid.Row="1" ItemsSource="{Binding ChangeTypeNames}" VerticalAlignment="Stretch"/>
-            <TextBlock Grid.Row="2" Text="{Binding ObjectTypeCount, StringFormat=Object Types ({0})}" FontWeight="Bold" Margin="0 10 0 5"/>
-            <ListBox Grid.Row="3" ItemsSource="{Binding ObjectTypeNames}" VerticalAlignment="Stretch"/>
-        </Grid>
-        <!-- Right column: commits -->
-        <Grid Grid.Column="1" RowDefinitions="Auto,*" VerticalAlignment="Stretch">
-            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0 0 0 5" ColumnSpacing="8">
-                <TextBlock Grid.Column="0" Text="{Binding CommitCount, StringFormat=Commits ({0})}" FontWeight="Bold" Margin="0 0 0 0"/>
-                <TextBlock Grid.Column="1" Text="{Binding DatabaseName}" HorizontalAlignment="Center" FontStyle="Italic" Opacity="0.8" Margin="0 0 0 0"/>
-                <Button Grid.Column="2" Content="Switch DB" Command="{Binding ReloadDbCommand}" Margin="0"/>
+    <DockPanel LastChildFill="True">
+        <!-- Status bar (no outer grid margin) -->
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+            <Button RenderTransform="None" Name="StatusBarButton" Command="{Binding OpenTypesWindowCommand}" Padding="6,2" MinHeight="0">
+                <TextBlock Text="{Binding CombinedTypesStatus}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding CombinedTypesStatus}" />
+            </Button>
+        </Border>
+        <!-- Main content with margin -->
+    <Grid RowDefinitions="Auto,*" Margin="10,10,10,0" RowSpacing="6">
+            <!-- Header -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                <TextBlock Grid.Column="0" Text="{Binding CommitCount, StringFormat=Commits ({0})}" FontWeight="Bold"/>
+                <TextBlock Grid.Column="1" Text="{Binding DatabaseName}" HorizontalAlignment="Center" FontStyle="Italic" Opacity="0.8"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                    <Button Content="Open DB..." Command="{Binding OpenDbFileAsyncCommand}"/>
+                    <Button Content="Open Sena 3" Command="{Binding OpenSena3Command}"/>
+                </StackPanel>
             </Grid>
-            <TreeDataGrid Grid.Row="1" Source="{Binding CommitTree}" VerticalAlignment="Stretch" />
+            <!-- Commit tree -->
+            <TreeDataGrid Grid.Row="1" Source="{Binding CommitTree}" />
         </Grid>
-    </Grid>
+    </DockPanel>
 </Window>

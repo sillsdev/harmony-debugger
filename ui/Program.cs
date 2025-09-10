@@ -11,41 +11,19 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        var dbArg = $"{FindParentTestDataDir()}/sena-3.sqlite";
-        // args.FirstOrDefault(a => a.StartsWith("--db="))?.Split('=')[1];
-        if (string.IsNullOrWhiteSpace(dbArg))
-        {
-            Console.Error.WriteLine("Usage: Harmony.Debugger --db=Path/To/db.sqlite");
-            Environment.Exit(1);
-        }
-
         try
         {
-            var services = CrdtLoader.LoadCrdt(dbArg);
+            // Build CRDT service collection with an in-memory SQLite placeholder so
+            // CrdtConfig & type metadata are available immediately. The real file
+            // path can be injected later by updating DbPathContext.DbPath.
+            var services = CrdtLoader.LoadCrdt("Data Source=:memory:");
             BuildAvaloniaApp(services).StartWithClassicDesktopLifetime(args);
         }
         catch (Exception ex)
         {
-            throw;
-            Console.Error.WriteLine($"Inspection failed: {ex.Message}");
+            Console.Error.WriteLine($"Startup failed: {ex}");
             Environment.Exit(2);
-            return;
         }
-    }
-
-    private static string? FindParentTestDataDir()
-    {
-        var current = new DirectoryInfo(Directory.GetCurrentDirectory());
-        while (current != null)
-        {
-            var candidate = Path.Combine(current.FullName, "test-data");
-            if (Directory.Exists(candidate))
-                return candidate;
-
-            current = current.Parent;
-        }
-
-        return null;
     }
 
     public static AppBuilder BuildAvaloniaApp(ServiceCollection? services = null)

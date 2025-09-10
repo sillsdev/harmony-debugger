@@ -19,11 +19,11 @@ public partial class App : Application
 
     public App(ServiceCollection? crdtServices)
     {
-        if (crdtServices is null && !Design.IsDesignMode)
-            throw new InvalidOperationException("Services must be provided in non-design mode");
-
+        // Allow starting with an empty service collection; a DB can be loaded later.
         _services = crdtServices ?? new ServiceCollection();
     }
+
+    public App() : this(new ServiceCollection()) { }
 
     public override void Initialize()
     {
@@ -40,35 +40,44 @@ public partial class App : Application
                 {
                     DataContext = sp.GetRequiredService<MainWindowViewModel>()
                 };
+            })
+            .AddSingleton<HarmonyDebugger.UI.Services.IHarmonyConfigService>(sp =>
+            {
+                // Try construct real config service; fall back to null-object.
+                try
+                {
+                    var cfg = sp.GetService<IOptions<CrdtConfig>>();
+                    if (cfg is not null)
+                        return new HarmonyDebugger.UI.Services.HarmonyConfigService(cfg);
+                }
+                catch { }
+                return new HarmonyDebugger.UI.Services.NullHarmonyConfigService();
+            })
+            .AddTransient<TypesWindowViewModel>()
+            .AddTransient<TypesWindow>(sp =>
+            {
+                return new TypesWindow
+                {
+                    DataContext = sp.GetRequiredService<TypesWindowViewModel>()
+                };
             });
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
-        ServiceProvider? provider = null;
-        try
-        {
-            AddUiServices(_services);
-            provider = _services.BuildServiceProvider();
-            var crdtConfig = provider.GetRequiredService<IOptions<CrdtConfig>>().Value;
+    ServiceProvider? provider = null;
+    AddUiServices(_services);
+    provider = _services.BuildServiceProvider();
+    // Attempt to resolve CrdtConfig only if it is registered.
+    try { _ = provider.GetService<IOptions<CrdtConfig>>(); } catch { }
 
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                DisableAvaloniaDataAnnotationValidation();
-                desktop.MainWindow = provider.GetRequiredService<MainWindow>();
-                desktop.Exit += (_, _) => provider.Dispose();
-            }
-        }
-        catch (Exception ex)
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            provider?.Dispose();
-            throw;
-            ShowErrorWindow("Failed building services: " + ex.Message);
+            DisableAvaloniaDataAnnotationValidation();
+            desktop.MainWindow = provider.GetRequiredService<MainWindow>();
+            desktop.Exit += (_, _) => provider.Dispose();
         }
-        finally
-        {
-            base.OnFrameworkInitializationCompleted();
-        }
+        base.OnFrameworkInitializationCompleted();
     }
 
     private void ShowErrorWindow(string message)

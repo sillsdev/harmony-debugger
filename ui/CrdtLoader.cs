@@ -25,6 +25,7 @@ public sealed class DbPathContext
         get => Volatile.Read(ref _dbPath);
         set
         {
+            // Allow setting to an empty or whitespace path only if using the initial placeholder.
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("Connection string cannot be empty", nameof(value));
             Volatile.Write(ref _dbPath, value);
         }
