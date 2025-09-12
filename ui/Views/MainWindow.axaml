@@ -1,13 +1,40 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:HarmonyDebugger.UI.ViewModels"
+        xmlns:behaviors="using:HarmonyDebugger.UI.Behaviors"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="HarmonyDebugger.UI.Views.MainWindow"
+    x:Class="HarmonyDebugger.UI.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
     Title="HarmonyDebugger.UI">
+
+    <Window.DataTemplates>
+        <!-- Implicit templates chosen by runtime based on item type -->
+    <DataTemplate DataType="vm:CommitRow">
+            <Border behaviors:CommitRowToggleBehavior.IsCommitToggleHotspot="True" Padding="6" Background="#1e1e1e70" BorderBrush="#323232" BorderThickness="1" Cursor="Hand">
+                <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="2" ColumnSpacing="8">
+                    <TextBlock Grid.Column="0" Grid.RowSpan="3" Text="{Binding Glyph}" Width="24" Height="24" />
+                    <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding HashShort}" FontFamily="Consolas" FontWeight="SemiBold"/>
+                    <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="{Binding ChangeCount}"/>
+                        <TextBlock Text="changes"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding DateDisplay}" FontSize="11" Opacity="0.8"/>
+                    <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding RelativeAge}" FontSize="11" Opacity="0.8" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding MetadataLine}" FontStyle="Italic" FontSize="11" Opacity="0.7"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    <DataTemplate DataType="vm:ChangeRow">
+            <Grid Margin="12,0,0,0" ColumnDefinitions="60,*,80" Height="24">
+                <TextBlock Grid.Column="0" Text="{Binding Index}" VerticalAlignment="Center" HorizontalAlignment="Right" FontFamily="Consolas"/>
+                <TextBlock Grid.Column="1" Text="{Binding TypeName}" Margin="6,0,6,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="2" Text="{Binding EntityIdShort}" VerticalAlignment="Center" FontFamily="Consolas"/>
+            </Grid>
+        </DataTemplate>
+    </Window.DataTemplates>
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -23,18 +50,40 @@
             </Button>
         </Border>
         <!-- Main content with margin -->
-    <Grid RowDefinitions="Auto,*" Margin="10,10,10,0" RowSpacing="6">
-            <!-- Header -->
-            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                <TextBlock Grid.Column="0" Text="{Binding CommitCount, StringFormat=Commits ({0})}" FontWeight="Bold"/>
-                <TextBlock Grid.Column="1" Text="{Binding DatabaseName}" HorizontalAlignment="Center" FontStyle="Italic" Opacity="0.8"/>
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="1*,1*" Margin="10,10,10,0" RowSpacing="6" ColumnSpacing="8">
+            <!-- Header spans full width -->
+            <Grid Grid.Row="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom">
+                    <TextBlock Text="Commits " FontWeight="Bold"/>
+                    <TextBlock Text="(" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding CommitCount}" FontWeight="Bold"/>
+                    <TextBlock Text=")" FontWeight="Bold"/>
+                </StackPanel>
+                <TextBlock Grid.Column="1" Text="{Binding DatabaseName}" HorizontalAlignment="Center" VerticalAlignment="Center" FontStyle="Italic" Padding="4,0,4,0" Opacity="0.8"/>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
-                    <Button Content="Open DB..." Command="{Binding OpenDbFileAsyncCommand}"/>
                     <Button Content="Open Sena 3" Command="{Binding OpenSena3Command}"/>
+                    <Button Content="Open DB..." Command="{Binding OpenDbFileAsyncCommand}"/>
                 </StackPanel>
             </Grid>
-            <!-- Commit tree -->
-            <TreeDataGrid Grid.Row="1" Source="{Binding CommitTree}" />
+            <!-- Commit/change list (left 50%) -->
+            <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}" BorderThickness="1" BorderBrush="Gray" behaviors:CommitRowToggleBehavior.EnableKeyboardCommitToggle="True">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Padding" Value="0"/>
+                    </Style>
+                </ListBox.Styles>
+            </ListBox>
+            <!-- Right side JSON detail panel -->
+            <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,*,Auto,*" RowSpacing="6">
+                <TextBlock Grid.Row="0" Text="Selected Commit / Change" FontWeight="Bold"/>
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#111" BorderBrush="#333" BorderThickness="1">
+                    <TextBox Text="{Binding SelectedCommitJson}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" Background="Transparent" BorderThickness="0" TextWrapping="NoWrap"/>
+                </ScrollViewer>
+                <TextBlock Grid.Row="2" Text="Entity Snapshot (After current commit)" FontWeight="Bold"/>
+                <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#111" BorderBrush="#333" BorderThickness="1">
+                    <TextBox Text="{Binding SelectedEntityJson}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" Background="Transparent" BorderThickness="0" TextWrapping="NoWrap"/>
+                </ScrollViewer>
+            </Grid>
         </Grid>
     </DockPanel>
 </Window>
