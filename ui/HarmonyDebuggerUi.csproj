@@ -32,4 +32,17 @@
     <ProjectReference Include="..\lexbox\backend\harmony\src\SIL.Harmony\SIL.Harmony.csproj" />
     <ProjectReference Include="..\lexbox\backend\FwLite\LcmCrdt\LcmCrdt.csproj" />
   </ItemGroup>
+
+  <!-- Kill running process before build to avoid locked file copy failures (MSB3026/MSB3027/MSB3021). -->
+  <Target Name="PreBuildKillRunningExe" BeforeTargets="BeforeBuild">
+      <!-- Windows -->
+    <Exec Command='taskkill /IM HarmonyDebuggerUi.exe /F 2>nul' 
+          IgnoreExitCode="true"
+          Condition="'$(OS)' == 'Windows_NT'" />
+
+    <!-- Linux/macOS -->
+    <Exec Command='pkill -f HarmonyDebuggerUi || true'
+          IgnoreExitCode="true"
+          Condition="'$(OS)' != 'Windows_NT'" />
+  </Target>
 </Project>
