@@ -50,7 +50,7 @@
             </Button>
         </Border>
         <!-- Main content with margin -->
-    <Grid RowDefinitions="Auto,*" ColumnDefinitions="1*,1*" Margin="10,10,10,0" RowSpacing="6" ColumnSpacing="8">
+    <Grid RowDefinitions="Auto,Auto,*" ColumnDefinitions="1*,1*" Margin="10,10,10,0" RowSpacing="6" ColumnSpacing="8">
             <!-- Header spans full width -->
             <Grid Grid.Row="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom">
@@ -65,8 +65,27 @@
                     <Button Content="Open DB..." Command="{Binding OpenDbFileAsyncCommand}"/>
                 </StackPanel>
             </Grid>
+            <!-- Import panel -->
+            <Border Grid.Row="1" Grid.ColumnSpan="2" BorderBrush="#333" BorderThickness="1" Padding="6" Background="#10101090" CornerRadius="4">
+                <Grid ColumnDefinitions="*,Auto,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="6" RowSpacing="4">
+                    <TextBlock Grid.Column="0" Grid.ColumnSpan="4" Text="Import Commits (ChangesResult JSON)" FontWeight="Bold"/>
+                    <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding ImportPayload, Mode=TwoWay}" AcceptsReturn="True" Watermark="Paste JSON here" MinHeight="60"/>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Spacing="4">
+                        <Button Content="Stage" Command="{Binding ImportCommitsCommand}"/>
+                        <Button Content="Step 1" Command="{Binding StepImportedCommand}"/>
+                        <Button Content="Step All" Command="{Binding StepAllImportedCommand}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Vertical" Spacing="4" MinWidth="140">
+                        <TextBlock Text="Pending:" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding PendingImportedCount}"/>
+                    </StackPanel>
+                    <ScrollViewer Grid.Row="1" Grid.Column="3" HorizontalScrollBarVisibility="Disabled" MaxHeight="60">
+                        <TextBlock Text="{Binding ImportStatus}" TextWrapping="Wrap" Width="160"/>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
             <!-- Commit/change list (left 50%) -->
-            <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}" BorderThickness="1" BorderBrush="Gray" behaviors:CommitRowToggleBehavior.EnableKeyboardCommitToggle="True">
+            <ListBox Grid.Row="2" Grid.Column="0" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}" BorderThickness="1" BorderBrush="Gray" behaviors:CommitRowToggleBehavior.EnableKeyboardCommitToggle="True">
                 <ListBox.Styles>
                     <Style Selector="ListBoxItem">
                         <Setter Property="Padding" Value="0"/>
@@ -74,7 +93,7 @@
                 </ListBox.Styles>
             </ListBox>
             <!-- Right side JSON detail panel -->
-            <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,*,Auto,*" RowSpacing="6">
+            <Grid Grid.Row="2" Grid.Column="1" RowDefinitions="Auto,*,Auto,*" RowSpacing="6">
                 <TextBlock Grid.Row="0" Text="Selected Commit / Change" FontWeight="Bold"/>
                 <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#111" BorderBrush="#333" BorderThickness="1">
                     <TextBox Text="{Binding SelectedCommitJson}" IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas" Background="Transparent" BorderThickness="0" TextWrapping="NoWrap"/>

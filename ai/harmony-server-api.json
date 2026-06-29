@@ -1,0 +1,1928 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Lexbox Public Api"
+  },
+  "paths": {
+    "/api/crdt/{projectId}/get": {
+      "get": {
+        "tags": [
+          "Crdt"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncState"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncState"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncState"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crdt/{projectId}/add": {
+      "post": {
+        "tags": [
+          "Crdt"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "clientId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ServerCommit"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ServerCommit"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ServerCommit"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/crdt/{projectId}/changes": {
+      "post": {
+        "tags": [
+          "Crdt"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncState"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncState"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncState"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangesResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangesResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangesResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crdt/{projectId}/countChanges": {
+      "post": {
+        "tags": [
+          "Crdt"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncState"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncState"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncState"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crdt/listProjects": {
+      "get": {
+        "tags": [
+          "Crdt"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FieldWorksLiteProject"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FieldWorksLiteProject"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FieldWorksLiteProject"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crdt/listProjectsV2": {
+      "get": {
+        "tags": [
+          "Crdt"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListProjectsResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListProjectsResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListProjectsResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crdt/lookupProjectId": {
+      "get": {
+        "tags": [
+          "Crdt"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "406": {
+            "description": "Not Acceptable",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crdt/checkConnection": {
+      "get": {
+        "tags": [
+          "Crdt"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/fwlite-release/download-latest": {
+      "get": {
+        "tags": [
+          "FwLiteRelease"
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FwLiteEdition"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fwlite-release/latest": {
+      "get": {
+        "tags": [
+          "FwLiteRelease"
+        ],
+        "parameters": [
+          {
+            "name": "edition",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FwLiteEdition"
+            }
+          },
+          {
+            "name": "appVersion",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FwLiteRelease"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FwLiteRelease"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FwLiteRelease"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fwlite-release/should-update": {
+      "get": {
+        "tags": [
+          "FwLiteRelease"
+        ],
+        "parameters": [
+          {
+            "name": "appVersion",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "edition",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/FwLiteEdition"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShouldUpdateResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShouldUpdateResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShouldUpdateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fwlite-release/new-release": {
+      "post": {
+        "tags": [
+          "FwLiteRelease"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/lfclassic/{project-code}/writingSystems": {
+      "get": {
+        "tags": [
+          "MiniLcm"
+        ],
+        "parameters": [
+          {
+            "name": "project-code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WritingSystems"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lfclassic/{project-code}/entries": {
+      "get": {
+        "tags": [
+          "MiniLcm"
+        ],
+        "parameters": [
+          {
+            "name": "project-code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortField",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortWritingSystem",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Ascending",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ExemplarValue",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ExemplarWritingSystem",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Entry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lfclassic/{project-code}/entries/{search}": {
+      "get": {
+        "tags": [
+          "MiniLcm"
+        ],
+        "parameters": [
+          {
+            "name": "project-code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortField",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortWritingSystem",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Ascending",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ExemplarValue",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ExemplarWritingSystem",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Entry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lfclassic/{project-code}/entry/{id}": {
+      "get": {
+        "tags": [
+          "MiniLcm"
+        ],
+        "parameters": [
+          {
+            "name": "project-code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Entry"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lfclassic/{project-code}/parts-of-speech": {
+      "get": {
+        "tags": [
+          "MiniLcm"
+        ],
+        "parameters": [
+          {
+            "name": "project-code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PartOfSpeech"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lfclassic/{project-code}/semantic-domains": {
+      "get": {
+        "tags": [
+          "MiniLcm"
+        ],
+        "parameters": [
+          {
+            "name": "project-code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SemanticDomain"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fw-lite/sync/status/{projectId}": {
+      "get": {
+        "tags": [
+          "Sync"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectSyncStatus"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectSyncStatus"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectSyncStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fw-lite/sync/trigger/{projectId}": {
+      "post": {
+        "tags": [
+          "Sync"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/fw-lite/sync/await-sync-finished/{projectId}": {
+      "get": {
+        "tags": [
+          "Sync"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncJobResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncJobResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncJobResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fw-lite/sync/regenerate-snapshot/{projectId}": {
+      "post": {
+        "tags": [
+          "Sync"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ChangesResult": {
+        "type": "object",
+        "properties": {
+          "missingFromClient": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServerCommit"
+            },
+            "nullable": true
+          },
+          "serverSyncState": {
+            "$ref": "#/components/schemas/SyncState"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CommitMetadata": {
+        "type": "object",
+        "properties": {
+          "authorName": {
+            "type": "string",
+            "nullable": true
+          },
+          "authorId": {
+            "type": "string",
+            "nullable": true
+          },
+          "clientVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "extraMetadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComplexFormComponent": {
+        "required": [
+          "complexFormEntryId",
+          "componentEntryId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "maybeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "readOnly": true
+          },
+          "order": {
+            "type": "number",
+            "format": "double"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "complexFormEntryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "complexFormHeadword": {
+            "type": "string",
+            "nullable": true
+          },
+          "componentEntryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "componentSenseId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "componentHeadword": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComplexFormType": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DateTimeOffsetInt64GuidValueTuple": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Entry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lexemeForm": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "citationForm": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "literalMeaning": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "morphType": {
+            "$ref": "#/components/schemas/MorphType"
+          },
+          "senses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Sense"
+            },
+            "nullable": true
+          },
+          "note": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplexFormComponent"
+            },
+            "nullable": true
+          },
+          "complexForms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplexFormComponent"
+            },
+            "nullable": true
+          },
+          "complexFormTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplexFormType"
+            },
+            "nullable": true
+          },
+          "publishIn": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Publication"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExampleSentence": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order": {
+            "type": "number",
+            "format": "double"
+          },
+          "sentence": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "translation": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "reference": {
+            "$ref": "#/components/schemas/RichString"
+          },
+          "senseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FieldWorksLiteProject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "isFwDataProject": {
+            "type": "boolean"
+          },
+          "isCrdtProject": {
+            "type": "boolean"
+          },
+          "role": {
+            "$ref": "#/components/schemas/ProjectRole"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FwLiteEdition": {
+        "enum": [
+          "WINDOWS",
+          "LINUX",
+          "ANDROID",
+          "I_OS",
+          "MAC",
+          "WINDOWS_APP_INSTALLER"
+        ],
+        "type": "string"
+      },
+      "FwLiteRelease": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "HybridDateTime": {
+        "type": "object",
+        "properties": {
+          "dateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "counter": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ListProjectsResult": {
+        "type": "object",
+        "properties": {
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldWorksLiteProject"
+            },
+            "nullable": true
+          },
+          "canDownloadByCode": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MorphType": {
+        "enum": [
+          "UNKNOWN",
+          "BOUND_ROOT",
+          "BOUND_STEM",
+          "CIRCUMFIX",
+          "CLITIC",
+          "ENCLITIC",
+          "INFIX",
+          "PARTICLE",
+          "PREFIX",
+          "PROCLITIC",
+          "ROOT",
+          "SIMULFIX",
+          "STEM",
+          "SUFFIX",
+          "SUPRAFIX",
+          "INFIXING_INTERFIX",
+          "PREFIXING_INTERFIX",
+          "SUFFIXING_INTERFIX",
+          "PHRASE",
+          "DISCONTIGUOUS_PHRASE",
+          "OTHER"
+        ],
+        "type": "string"
+      },
+      "PartOfSpeech": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "predefined": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "ProjectRole": {
+        "enum": [
+          "UNKNOWN",
+          "MANAGER",
+          "EDITOR",
+          "OBSERVER"
+        ],
+        "type": "string"
+      },
+      "ProjectSyncStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ProjectSyncStatusEnum"
+          },
+          "pendingCrdtChanges": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingMercurialChanges": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lastCrdtCommitDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastMercurialCommitDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "errorCode": {
+            "$ref": "#/components/schemas/ProjectSyncStatusErrorCode"
+          },
+          "errorMessage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectSyncStatusEnum": {
+        "enum": [
+          "NEVER_SYNCED",
+          "READY_TO_SYNC",
+          "SYNCING",
+          "QUEUED_TO_SYNC",
+          "UNKNOWN"
+        ],
+        "type": "string"
+      },
+      "ProjectSyncStatusErrorCode": {
+        "enum": [
+          "NOT_LOGGED_IN",
+          "UNKNOWN"
+        ],
+        "type": "string"
+      },
+      "Publication": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "name": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RichSpan": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RichString": {
+        "type": "object",
+        "properties": {
+          "spans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RichSpan"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SemanticDomain": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "predefined": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Sense": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order": {
+            "type": "number",
+            "format": "double"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "entryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "definition": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "gloss": {
+            "type": "object",
+            "additionalProperties": { },
+            "nullable": true
+          },
+          "partOfSpeech": {
+            "$ref": "#/components/schemas/PartOfSpeech"
+          },
+          "partOfSpeechId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "semanticDomains": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SemanticDomain"
+            },
+            "nullable": true
+          },
+          "exampleSentences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExampleSentence"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServerCommit": {
+        "required": [
+          "clientId",
+          "hybridDateTime"
+        ],
+        "type": "object",
+        "properties": {
+          "compareKey": {
+            "$ref": "#/components/schemas/DateTimeOffsetInt64GuidValueTuple"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "hybridDateTime": {
+            "$ref": "#/components/schemas/HybridDateTime"
+          },
+          "dateTime": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/CommitMetadata"
+          },
+          "clientId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "changeEntities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServerJsonChangeChangeEntity"
+            },
+            "nullable": true
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServerJsonChange": {
+        "required": [
+          "$type"
+        ],
+        "type": "object",
+        "properties": {
+          "$type": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "ServerJsonChangeChangeEntity": {
+        "required": [
+          "change",
+          "commitId",
+          "entityId",
+          "index"
+        ],
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "commitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "change": {
+            "$ref": "#/components/schemas/ServerJsonChange"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ShouldUpdateResponse": {
+        "type": "object",
+        "properties": {
+          "release": {
+            "$ref": "#/components/schemas/FwLiteRelease"
+          },
+          "update": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncJobResult": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/SyncJobStatusEnum"
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "syncResult": {
+            "$ref": "#/components/schemas/SyncResult"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncJobStatusEnum": {
+        "enum": [
+          "SUCCESS",
+          "PROJECT_NOT_FOUND",
+          "SYNC_JOB_NOT_FOUND",
+          "SYNC_JOB_TIMED_OUT",
+          "TIMED_OUT_AWAITING_SYNC_STATUS",
+          "UNABLE_TO_AUTHENTICATE",
+          "UNABLE_TO_SYNC",
+          "CRDT_SYNC_FAILED",
+          "SEND_RECEIVE_FAILED",
+          "UNKNOWN_ERROR"
+        ],
+        "type": "string"
+      },
+      "SyncResult": {
+        "type": "object",
+        "properties": {
+          "crdtChanges": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fwdataChanges": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncState": {
+        "type": "object",
+        "properties": {
+          "clientHeads": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WritingSystem": {
+        "required": [
+          "abbreviation",
+          "font",
+          "id",
+          "name",
+          "type",
+          "wsId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "wsId": {
+            "$ref": "#/components/schemas/WritingSystemId"
+          },
+          "isAudio": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "abbreviation": {
+            "type": "string",
+            "nullable": true
+          },
+          "font": {
+            "type": "string",
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/WritingSystemType"
+          },
+          "exemplars": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "order": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WritingSystemId": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "isAudio": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WritingSystemType": {
+        "enum": [
+          "VERNACULAR",
+          "ANALYSIS"
+        ],
+        "type": "string"
+      },
+      "WritingSystems": {
+        "type": "object",
+        "properties": {
+          "analysis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WritingSystem"
+            },
+            "nullable": true
+          },
+          "vernacular": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WritingSystem"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "description": "Enter the token from login, prefixed like this `Bearer {token}`",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
+}

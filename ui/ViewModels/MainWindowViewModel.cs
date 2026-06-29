@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using HarmonyDebugger.UI.Views;
 using System.Text.Json;
+using SIL.Harmony.Db;
 
 namespace HarmonyDebugger.UI.ViewModels;
 
@@ -16,7 +17,9 @@ public partial class MainWindowViewModel : ViewModelBase
         IServiceProvider serviceProvider,
         DbPathContext dbPathContext,
         HarmonyDebugger.UI.Services.IHarmonyConfigService harmonyConfig,
-        JsonSerializerOptions jsonSerializerOptions)
+    JsonSerializerOptions jsonSerializerOptions,
+    HarmonyDebuggerUi.Services.Import.IIncomingCommitSource incomingSource,
+    HarmonyDebuggerUi.Services.Import.PendingImportService pendingImportService)
     {
         _rootProvider = serviceProvider;
         _dbPathContext = dbPathContext;
@@ -28,6 +31,8 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             WriteIndented = true
         };
+    _incomingSource = incomingSource;
+    _pendingImport = pendingImportService;
         Commits = new ReadOnlyObservableCollection<Commit>(_commits);
         // We always have CRDT config (types) at startup, but we defer any DB access
         // until the user explicitly selects a database.
@@ -41,6 +46,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IServiceProvider _rootProvider;
     private readonly DbPathContext _dbPathContext;
     private readonly HarmonyDebugger.UI.Services.IHarmonyConfigService _harmonyConfig;
+    private readonly HarmonyDebuggerUi.Services.Import.IIncomingCommitSource _incomingSource;
+    private readonly HarmonyDebuggerUi.Services.Import.PendingImportService _pendingImport;
 
 
     // PrettyTypeName logic moved to Services.TypeNameFormatter.
@@ -205,6 +212,28 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch { /* swallow logging failures */ }
     }
+
+    // --- Import / Stepping (initial minimal surface) ---
+    private string _importPayload = string.Empty;
+    public string ImportPayload
+    {
+        get => _importPayload;
+        set => SetProperty(ref _importPayload, value);
+    }
+
+    private int _pendingImportedCount;
+    public int PendingImportedCount
+    {
+        get => _pendingImportedCount;
+        private set => SetProperty(ref _pendingImportedCount, value);
+    }
+
+    private string _importStatus = string.Empty;
+    public string ImportStatus
+    {
+        get => _importStatus;
+        private set => SetProperty(ref _importStatus, value);
+    }
 }
 
 partial class MainWindowViewModel
@@ -237,4 +266,62 @@ partial class MainWindowViewModel
     }
 
     private TypesWindow? _typesWindow;
+
+    [RelayCommand]
+    private async System.Threading.Tasks.Task ImportCommitsAsync()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(ImportPayload))
+            {
+                ImportStatus = "No payload";
+                return;
+            }
+            var batch = await _incomingSource.LoadAsync(ImportPayload);
+            _pendingImport.SetBatch(batch);
+            PendingImportedCount = _pendingImport.PendingCount;
+            ImportStatus = batch.Commits.Length == 0 ? "No commits found" : $"Staged {batch.Commits.Length} commits";
+        }
+        catch (Exception ex)
+        {
+            ImportStatus = $"Import error: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private async System.Threading.Tasks.Task StepImportedAsync()
+    {
+        if (!_pendingImport.HasPending)
+        {
+            ImportStatus = "No pending commits";
+            return;
+        }
+        await _pendingImport.StepAsync();
+        PendingImportedCount = _pendingImport.PendingCount;
+        ImportStatus = $"Applied 1, remaining {PendingImportedCount}";
+        await RefreshAfterImportAsync();
+    }
+
+    [RelayCommand]
+    private async System.Threading.Tasks.Task StepAllImportedAsync()
+    {
+        if (!_pendingImport.HasPending)
+        {
+            ImportStatus = "No pending commits";
+            return;
+        }
+        var applied = await _pendingImport.StepManyAsync();
+        PendingImportedCount = _pendingImport.PendingCount;
+        ImportStatus = $"Applied {applied}, remaining {PendingImportedCount}";
+        await RefreshAfterImportAsync();
+    }
+
+    private System.Threading.Tasks.Task RefreshAfterImportAsync()
+    {
+        // naive refresh: rebuild commit collection from DataModel (scoped read)
+    // Temporary lightweight refresh: rebuild rows from existing in-memory collection.
+    // (Full DB re-query omitted because repository factory is internal to Harmony assembly.)
+    RebuildRows();
+        return System.Threading.Tasks.Task.CompletedTask;
+    }
 }

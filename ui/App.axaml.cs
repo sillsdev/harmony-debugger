@@ -41,6 +41,14 @@ public partial class App : Application
                     DataContext = sp.GetRequiredService<MainWindowViewModel>()
                 };
             })
+            // Fallback DbPathContext so DataAccess features (Open DB...) can later replace path.
+            .AddSingleton<DbPathContext>(_ => new DbPathContext("Data Source=:memory:"))
+            // Provide JsonSerializerOptions if none (needed for polymorphic commit display & import)
+            .AddSingleton(sp => new System.Text.Json.JsonSerializerOptions())
+            // Ensure import pipeline services present even if CrdtLoader.LoadCrdt was not previously invoked
+            .AddSingleton<HarmonyDebuggerUi.Services.Import.ICommitImportFormat, HarmonyDebuggerUi.Services.Import.ChangesResultJsonImportFormat>()
+            .AddSingleton<HarmonyDebuggerUi.Services.Import.IIncomingCommitSource, HarmonyDebuggerUi.Services.Import.IncomingCommitSource>()
+            .AddSingleton<HarmonyDebuggerUi.Services.Import.PendingImportService>()
             .AddSingleton<HarmonyDebugger.UI.Services.IHarmonyConfigService>(sp =>
             {
                 // Try construct real config service; fall back to null-object.

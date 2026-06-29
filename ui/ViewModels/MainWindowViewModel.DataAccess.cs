@@ -24,8 +24,11 @@ public partial class MainWindowViewModel
 
     private void LoadCommits()
     {
-        using var scope = _rootProvider.CreateScope();
-        var factory = scope.ServiceProvider.GetRequiredService<ICrdtDbContextFactory>();
+    var scopeFactory = _rootProvider.GetService<IServiceScopeFactory>();
+    if (scopeFactory == null) return;
+    using var scope = scopeFactory.CreateScope();
+    var factory = scope.ServiceProvider.GetService<ICrdtDbContextFactory>();
+        if (factory == null) return;
         using var ctx = factory.CreateDbContext();
         var cs = ctx.Database.GetConnectionString();
         if (!string.IsNullOrEmpty(cs))
@@ -154,8 +157,9 @@ public partial class MainWindowViewModel
     {
         if (commit.ChangeEntities.Count > 0)
             return commit.ChangeEntities;
-        using var scope = _rootProvider.CreateScope();
-        var factory = scope.ServiceProvider.GetService<ICrdtDbContextFactory>();
+    var scopeFactory = _rootProvider.GetService<IServiceScopeFactory>();
+    using var scope = scopeFactory?.CreateScope();
+    var factory = scope?.ServiceProvider.GetService<ICrdtDbContextFactory>();
         if (factory is null) return commit.ChangeEntities;
         using var ctx = factory.CreateDbContext();
         var changes = ctx.Set<ChangeEntity<IChange>>()
@@ -174,8 +178,9 @@ public partial class MainWindowViewModel
     {
         // Retrieve the entity state AS OF (after) the commit containing this change.
         // We intentionally do not swallow exceptions; we return the message so the UI can display it.
-        await using var scope = _rootProvider.CreateAsyncScope();
-        var dataModel = scope.ServiceProvider.GetService<DataModel>();
+    var scopeFactory = _rootProvider.GetService<IServiceScopeFactory>();
+    using var scope = scopeFactory?.CreateScope();
+    var dataModel = scope?.ServiceProvider.GetService<DataModel>();
         if (dataModel is null)
             return (null, "DataModel service not available");
 

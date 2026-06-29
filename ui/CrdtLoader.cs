@@ -49,6 +49,10 @@ public static class CrdtLoader
 
         // Resolve connection dynamically so future updates are picked up.
         LcmCrdtKernel.AddCrdtCore(services, sp => sp.GetRequiredService<DbPathContext>().DbPath);
+    // Import / incoming commit staging services
+    services.AddSingleton<HarmonyDebuggerUi.Services.Import.ICommitImportFormat, HarmonyDebuggerUi.Services.Import.ChangesResultJsonImportFormat>();
+    services.AddSingleton<HarmonyDebuggerUi.Services.Import.IIncomingCommitSource, HarmonyDebuggerUi.Services.Import.IncomingCommitSource>();
+    services.AddSingleton<HarmonyDebuggerUi.Services.Import.PendingImportService>();
         return services;
     }
 }
